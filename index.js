@@ -30,10 +30,18 @@ app.get('/api/:userID', async (req, res) => {
             return
         }
 
+        let message = data.data.discord_status
+
+        if (message === "dnd") {
+            message = "Do Not Disturb"
+        } else {
+            message = capitalize(message)
+        }
+
         res.json({
             schemaVersion: 1,
             label: "Discord",
-            message: capitalize(data.data.discord_status),
+            message: message,
         })
     } catch (err) {
         Logger.log(err, "ERROR")
