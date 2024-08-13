@@ -10,8 +10,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.3.5",
-    "express": "^4.18.2",
-    "simpllog": "^1.1.3"
+    "axios": "^1.7.4",
+    "express": "^4.19.2",
+    "simpllog": "^1.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }

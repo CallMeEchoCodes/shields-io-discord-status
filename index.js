@@ -1,56 +1,63 @@
-const express = require("express")
-const simpllog = require("simpllog")
-const axios = require("axios")
-
+const express = require("express");
+const simpllog = require("simpllog");
+const axios = require("axios");
 
 const Logger = new simpllog({ production: false });
-const port = 6160
+const port = 6160;
 
 function capitalize(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-const app = express()
+const app = express();
 
-app.get('/', (req, res) => {
-    res.send('GET request to the homepage')
-})
+app.get("/", (req, res) => {
+  res.send("To use this service, send a request to api/<YourUserId>");
+});
 
-app.get('/api/:userID', async (req, res) => {
-    try {
-        if (!req.params.userID.match(/^[0-9]{15,25}$/)) {
-            res.status(400).json({ status: 400, error: "invalid_user_id" })
-            return
-        }
-        
-        const { data } = await axios.get(`https://api.lanyard.rest/v1/users/${req.params.userID}`, { validateStatus: false })
-
-        if (!data.success) {
-            res.status(502).json({ status: 502, error: data.error.code ? data.error.code : "unknown_error" })
-            return
-        }
-
-        let message = data.data.discord_status
-
-        if (message === "dnd") {
-            message = "Do Not Disturb"
-        } else {
-            message = capitalize(message)
-        }
-
-        res.json({
-            schemaVersion: 1,
-            label: "Discord",
-            message: message,
-        })
-    } catch (err) {
-        Logger.log(err, "ERROR")
-        res.status(500).json({ status: 500, error: "unknown_error" })
+app.get("/api/:userID", async (req, res) => {
+  try {
+    if (!req.params.userID.match(/^[0-9]{15,25}$/)) {
+      res.status(400).json({ status: 400, error: "invalid_user_id" });
+      return;
     }
-})
+
+    const { data } = await axios.get(
+      `https://api.lanyard.rest/v1/users/${req.params.userID}`,
+      { validateStatus: false }
+    );
+
+    if (!data.success) {
+      res.status(502).json({
+        status: 502,
+        error: data.error.code ? data.error.code : "unknown_error",
+      });
+      return;
+    }
+
+    let message = data.data.discord_status;
+
+    if (message === "dnd") {
+      message = "Do Not Disturb";
+    } else {
+      message = capitalize(message);
+    }
+
+    res.json({
+      schemaVersion: 1,
+      label: "Discord",
+      message: message,
+    });
+  } catch (err) {
+    Logger.log(err, "ERROR");
+    res.status(500).json({ status: 500, error: "unknown_error" });
+  }
+});
 
 app.use((req, res, next) => {
-    res.status(404).json({ status: 404 })
-})
+  res.status(404).json({ status: 404 });
+});
 
-app.listen(port, () => Logger.log(`Started server on port ${port}!`, "SUCCESS"));
+app.listen(port, () =>
+  Logger.log(`Started server on port ${port}!`, "SUCCESS")
+);
